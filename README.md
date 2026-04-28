@@ -63,4 +63,5 @@ flowchart TD
     
     class Mic,Speaker hardware;
     class MemFile,ChapFile,NewChap memory;
-    class Builder,Parser,VoiceSelector logic; ```
+    class Builder,Parser,VoiceSelector logic;
+```
