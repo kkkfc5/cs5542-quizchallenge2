@@ -41,7 +41,7 @@ flowchart TD
         Ollama -->|Yields Line-by-Line| Parser{Text Parser & Router}
         Parser -->|Check Flag| HaltSignal
         Parser -->|Raw Text| TextBuffer[UI: Text Display]
-        Parser -->|Extract [Speaker] Tag| VoiceSelector[Voice Profile Matcher]
+        Parser -->|"Extract [Speaker] Tag"| VoiceSelector[Voice Profile Matcher]
         VoiceSelector -->|Text + Voice ID| Kokoro[Kokoro TTS Engine]
         Kokoro -->|Audio Array| Speaker[System Speakers]
     end
@@ -56,12 +56,4 @@ flowchart TD
     Memory_Layer --> LLM_Layer
     LLM_Layer --> Output_Layer
     Output_Layer -.->|Triggers upon completion| Post_Processing
-
-    classDef hardware fill:#45475a,stroke:#cba6f7,stroke-width:2px,color:#fff;
-    classDef memory fill:#313244,stroke:#a6e3a1,stroke-width:2px,color:#fff;
-    classDef logic fill:#1e1e2e,stroke:#89b4fa,stroke-width:2px,color:#fff;
-    
-    class Mic,Speaker hardware;
-    class MemFile,ChapFile,NewChap memory;
-    class Builder,Parser,VoiceSelector logic;
 ```
