@@ -15,9 +15,10 @@ Windows Admin Terminal:
 ## Setup:
 0. Run:
 ```python -m venv .venv```
+```.venv/Scripts/activate```
 
 1. Run:
-```.venv/Scripts/activate```
+```pip install -r requirements.txt```
 
 2. Run:
 ```python src/app.py```
