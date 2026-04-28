@@ -1,0 +1,9 @@
+[Narrator]: One of the travelers, a young woman with a look of desperation in her eyes, stepped forward.
+[Young Woman]: We were traveling on the eastern road when we saw it spreading across the landscape. It's like nothing I've ever seen before - a dark mist that seems to consume everything in its path. We had to flee or be consumed!
+[Scorch]: *growls* Consumed? What do you mean?
+[Young Woman]: The people, the animals... everything. And then there are the whispers. Faint whispers of an ancient power stirring.
+[Narrator]: Timmy's eyes widened in alarm as Scorch's ears perked up, listening intently to the whispers.
+[Timmy]: What kind of ancient power?
+[Old Man]: *shakes head* I don't know what it is, but it feels like something we should fear. We've heard stories of a powerful sorcerer who once sought to conquer Azura... and now that darkness seems to be spreading under his name.
+[Narrator]: The travelers' words sent shivers down Timmy's spine as Scorch let out a mighty roar, as if sensing the weight of their words.
+What do you think will happen next?

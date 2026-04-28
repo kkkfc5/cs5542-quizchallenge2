@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Bedtime Storyteller</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; display: flex; height: 100vh; background-color: #1e1e2e; color: #eceff4;}
+        
+        /* Sidebar Styles */
+        #sidebar { width: 250px; background-color: #181825; padding: 20px; overflow-y: auto; border-right: 2px solid #313244; }
+        .story-item { padding: 10px; margin-bottom: 10px; background-color: #313244; border-radius: 5px; cursor: pointer; transition: 0.2s; font-size: 14px;}
+        .story-item:hover { background-color: #45475a; }
+        .story-item.active { border-left: 4px solid #a6e3a1; background-color: #45475a; font-weight: bold;}
+        .disabled { opacity: 0.5; pointer-events: none; }
+
+        /* Main Content Styles */
+        #main { flex-grow: 1; display: flex; flex-direction: column; padding: 20px; align-items: center;}
+        #controls { margin-bottom: 20px; }
+        button { padding: 12px 24px; font-size: 16px; margin: 5px; cursor: pointer; border-radius: 8px; border: none; font-weight: bold; transition: 0.2s;}
+        button:disabled { opacity: 0.5; cursor: not-allowed; }
+        
+        #btn-start { background-color: #a6e3a1; color: #11111b; }
+        #btn-pause { background-color: #f9e2af; color: #11111b; }
+        #btn-mic { background-color: #f38ba8; color: #11111b; display: none; padding: 20px 40px; font-size: 20px;}
+        
+        #status-box { font-size: 20px; color: #89b4fa; margin-bottom: 20px; font-weight: bold;}
+        
+        /* Text Reading Area */
+        #text-container { width: 80%; max-width: 800px; flex-grow: 1; background-color: #11111b; border-radius: 10px; padding: 20px; overflow-y: auto; box-shadow: 0 4px 6px rgba(0,0,0,0.3); font-size: 18px; line-height: 1.6;}
+        #past-text { color: #bac2de; white-space: pre-wrap;}
+        #current-text { color: #a6e3a1; white-space: pre-wrap; font-weight: bold;}
+    </style>
+</head>
+<body>
+
+    <div id="sidebar">
+        <h3>📚 Your Stories</h3>
+        <div id="story-list">Loading...</div>
+    </div>
+
+    <div id="main">
+        <h1>📖 Infinite Storyteller</h1>
+        <div id="status-box">Status: IDLE</div>
+
+        <div id="controls">
+            <button id="btn-start" onclick="sendCommand('/api/start_new')">✨ New Story</button>
+            <button id="btn-pause" onclick="sendCommand('/api/pause')">⏸️ Pause Next</button>
+        </div>
+
+        <div id="interaction-zone" style="margin-bottom: 20px; min-height: 70px;">
+            <button id="btn-mic" style="background-color: #f38ba8; color: #11111b; display: none; padding: 15px 30px;" onmousedown="startMic()" onmouseup="stopMic()">🎤 HOLD TO SPEAK</button>
+            
+            <button id="btn-continue" style="background-color: #89b4fa; color: #11111b; display: none; padding: 15px 30px;" onclick="sendCommand('/api/continue')">⏩ Continue Naturally</button>
+            
+            <button id="btn-halt" style="background-color: #f38ba8; color: #11111b; display: none; padding: 15px 30px; font-weight: bold;" onclick="sendCommand('/api/halt')">🛑 INSTANT HALT</button>
+        </div>
+
+        <div id="text-container">
+            <div id="past-text"></div>
+            <div id="current-text"></div>
+        </div>
+    </div>
+
+    <script>
+        let isGenerating = false;
+
+        function sendCommand(endpoint) {
+            fetch(endpoint).then(() => fetchStories());
+        }
+
+        function loadStory(storyId) {
+            fetch('/api/load_story', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({story_id: storyId})
+            }).then(() => fetchStories());
+        }
+
+        function fetchStories() {
+            fetch('/api/stories').then(res => res.json()).then(data => {
+                const list = document.getElementById('story-list');
+                list.innerHTML = '';
+                
+                data.stories.forEach(story => {
+                    const div = document.createElement('div');
+                    div.className = 'story-item';
+                    if(story === data.active) div.classList.add('active');
+                    if(isGenerating) div.classList.add('disabled'); // Prevent clicking while generating
+                    
+                    div.innerText = story.replace("Story_", "");
+                    div.onclick = () => loadStory(story);
+                    list.appendChild(div);
+                });
+            });
+        }
+
+        // --- Audio Recording Logic ---
+        function startMic() {
+            document.getElementById('btn-mic').style.backgroundColor = "darkred";
+            document.getElementById('btn-mic').innerText = "🎙️ RECORDING...";
+            fetch('/api/record/start', { method: 'POST' });
+        }
+
+        function stopMic() {
+            document.getElementById('btn-mic').style.backgroundColor = "#f38ba8";
+            document.getElementById('btn-mic').innerText = "⏳ THINKING...";
+            fetch('/api/record/stop', { method: 'POST' })
+                .then(res => res.json())
+                .then(data => document.getElementById('btn-mic').style.display = "none");
+        }
+
+        // --- Polling Loop (Every 500ms) ---
+        setInterval(() => {
+            fetch('/api/status').then(res => res.json()).then(data => {
+                const state = data.state;
+                isGenerating = (state === "GENERATING");
+                
+                document.getElementById('btn-start').disabled = isGenerating;
+
+                // UI Logic Routing
+                const btnMic = document.getElementById('btn-mic');
+                const btnContinue = document.getElementById('btn-continue');
+                const btnHalt = document.getElementById('btn-halt');
+
+                if (state === "IDLE") {
+                    document.getElementById('status-box').innerText = "Select a story or start a new one.";
+                    btnMic.style.display = "none"; btnContinue.style.display = "none"; btnHalt.style.display = "none";
+                } 
+                else if (state === "GENERATING") {
+                    document.getElementById('status-box').innerText = "📖 Reading Chapter...";
+                    btnMic.style.display = "none"; btnContinue.style.display = "none"; 
+                    btnHalt.style.display = "inline-block"; // Show Halt
+                } 
+                else if (state === "PAUSE_REQUESTED") {
+                    document.getElementById('status-box').innerText = "⏸️ Finishing current chapter...";
+                    btnMic.style.display = "none"; btnContinue.style.display = "none"; 
+                    btnHalt.style.display = "inline-block"; // Show Halt
+                } 
+                else if (state === "WAITING_FOR_INPUT") {
+                    document.getElementById('status-box').innerText = "✋ Paused. Steer the story or let it continue!";
+                    btnMic.style.display = "inline-block"; btnMic.innerText = "🎤 HOLD TO SPEAK";
+                    btnContinue.style.display = "inline-block"; // Show Continue
+                    btnHalt.style.display = "none";
+                }
+            });
+
+            fetch('/api/text').then(res => res.json()).then(data => {
+                document.getElementById('past-text').innerText = data.past_text;
+                document.getElementById('current-text').innerText = data.current_text;
+                const container = document.getElementById('text-container');
+                container.scrollTop = container.scrollHeight;
+            });
+        }, 500);
+
+        fetchStories();
+    </script>
+</body>
+</html>

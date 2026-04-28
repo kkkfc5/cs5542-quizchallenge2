@@ -1,0 +1,10 @@
+ollama
+kokoro
+sounddevice
+soundfile
+openai-whisper 
+sounddevice 
+soundfile 
+keyboard 
+numpy
+flask
