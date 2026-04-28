@@ -17,7 +17,7 @@ Windows Admin Terminal:
 
 
 # Data Flow / Architecture Graph:
-
+``` mermaid
 flowchart TD
     subgraph UI_Layer [1. Interaction Layer]
         Mic[Microphone] -->|Raw Audio Buffer| Whisper[Whisper STT]
@@ -63,4 +63,4 @@ flowchart TD
     
     class Mic,Speaker hardware;
     class MemFile,ChapFile,NewChap memory;
-    class Builder,Parser,VoiceSelector logic;
+    class Builder,Parser,VoiceSelector logic; ```
