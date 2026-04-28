@@ -1,3 +1,8 @@
+# Video:
+https://umsystem.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=2cf6eaaa-4c75-47b5-921d-b43a0052971f
+
+
+
 # To Run:
 
 ## Prerequisites: 
@@ -8,10 +13,16 @@ Windows Admin Terminal:
 2. Ollama running Llama3
 
 ## Setup:
+0. Run:
+```python -m venv .venv```
+
 1. Run:
+```.venv/Scripts/activate```
+
+2. Run:
 ```python src/app.py```
 
-2. Navigate to:
+3. Navigate to:
 ```http://localhost:5000```
 
 

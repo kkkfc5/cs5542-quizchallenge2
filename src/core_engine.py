@@ -160,6 +160,35 @@ VOICE_MAP = {
 }
 
 def generate_chapter_stream(model_name, child_prompt, previous_summaries=""):
+    # """BASELINE EVALUATION VERSION (Non-Streaming)"""
+    
+    # # ... (Keep your modified baseline system_instruction here) ...
+    # system_instruction = "You are a storyteller. Write a story with characters talking." 
+    
+    # full_prompt = f"Previous Story Context: {previous_summaries}\n\nChild's Request: {child_prompt}"
+
+    # print("🧠 [LLM] Generating entire story at once (Baseline Mode)...")
+    
+    # # stream=False returns the entire completed dictionary
+    # response = ollama.chat(
+    #     model=model_name,
+    #     messages=[
+    #         {'role': 'system', 'content': system_instruction},
+    #         {'role': 'user', 'content': full_prompt}
+    #     ],
+    #     stream=False 
+    # )
+
+    # # 1. Grab the massive, completed block of text
+    # full_text = response['message']['content']
+    
+    # # 2. Yield it line-by-line so the Kokoro TTS parser still works
+    # for line in full_text.split('\n'):
+    #     if line.strip():
+    #         yield line.strip()
+    # return
+    
+    
     """Streams output from Ollama line-by-line."""
     # Notice: We removed the summary instruction from the system prompt
     system_instruction = """You are a friendly, creative children's bedtime storyteller.
@@ -172,7 +201,17 @@ def generate_chapter_stream(model_name, child_prompt, previous_summaries=""):
     
     Keep the story engaging, safe, and relatively short for this chapter.
     
+    Do not speak as yourself.
     Do not ask what will happen next after generating."""
+
+
+    # #TODO : DELETE THIS ####################################################################
+    # #TODO : DELETE THIS ####################################################################
+    # #TODO : DELETE THIS ####################################################################
+    # #TODO : DELETE THIS ####################################################################
+    # #TODO : DELETE THIS ####################################################################
+    # system_instruction = '''You are a children's storyteller. Write a short story with characters talking.'''
+
 
     full_prompt = f"Previous Story Context: {previous_summaries}\n\nChild's Request: {child_prompt}"
 
@@ -185,6 +224,7 @@ def generate_chapter_stream(model_name, child_prompt, previous_summaries=""):
             {'role': 'user', 'content': full_prompt}
         ],
         stream=True
+        # stream=False
     )
 
     buffer = ""
@@ -234,7 +274,7 @@ def process_and_play_stream(text_generator, check_halt_callback=None, generation
         
         # METRIC 2 CHECK: Does it match the [Speaker]: format?
         match = re.match(r'\[(.*?)\]:\s*(.*)', line)
-        print(f"\n: RAW : {line}")
+        # print(f"\n: RAW : {line}")
         if match:
             speaker = match.group(1).strip().lower()
             text = match.group(2).strip()
